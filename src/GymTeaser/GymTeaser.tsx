@@ -4,7 +4,7 @@ import { wipe } from "@remotion/transitions/wipe";
 import { flip } from "@remotion/transitions/flip";
 import { iris } from "@remotion/transitions/iris";
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
-import { AbsoluteFill, staticFile } from "remotion";
+import { AbsoluteFill, Audio, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { IntroLogo } from "./scenes/IntroLogo";
 import { TextOverImage } from "./scenes/TextOverImage";
 import { BrandReveal } from "./scenes/BrandReveal";
@@ -31,9 +31,20 @@ export const SCENE_DURATIONS = [
 export const GYM_TEASER_DURATION =
   SCENE_DURATIONS.reduce((a, b) => a + b, 0) - (SCENE_DURATIONS.length - 1) * TRANSITION;
 
+const FADE_OUT_FRAMES = 30;
+
 export const GymTeaser: React.FC = () => {
+  const frame = useCurrentFrame();
+  const volume = interpolate(
+    frame,
+    [0, GYM_TEASER_DURATION - FADE_OUT_FRAMES, GYM_TEASER_DURATION],
+    [1, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+
   return (
     <AbsoluteFill style={{ backgroundColor: "#000000" }}>
+      <Audio src={staticFile("audio/gym-phonk.mp3")} volume={volume} />
       <TransitionSeries>
         <TransitionSeries.Sequence durationInFrames={SCENE_DURATIONS[0]}>
           <IntroLogo />
