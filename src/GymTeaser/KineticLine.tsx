@@ -31,15 +31,18 @@ export const KineticLine: React.FC<Props> = ({
         const progress = spring({
           frame: frame - wordDelay,
           fps,
-          config: { damping: 14, stiffness: 160, mass: 0.6 },
+          config: { damping: 11, stiffness: 220, mass: 0.55 },
         });
-        const translateY = interpolate(progress, [0, 1], [40, 0]);
+        const translateY = interpolate(progress, [0, 1], [46, 0]);
+        const scale = interpolate(progress, [0, 0.7, 1], [0.4, 1.08, 1]);
+        const rotate = interpolate(progress, [0, 1], [-6, 0]);
         return (
           <span
             key={i}
             style={{
+              display: "inline-block",
               opacity: progress,
-              transform: `translateY(${translateY}px)`,
+              transform: `translateY(${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
               fontSize,
               color,
               fontWeight: 400,

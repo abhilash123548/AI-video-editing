@@ -50,7 +50,7 @@ export const OutroCard: React.FC<Props> = ({ durationInFrames }) => {
             lineHeight: 1.05,
           }}
         >
-          Your First Rep Starts Now
+          Your Transformation Starts Now
         </div>
       </AbsoluteFill>
 
