@@ -23,17 +23,21 @@ export const Background: React.FC = () => {
           opacity: 0.6,
         }}
       />
-      <AbsoluteFill
+      <div
         style={{
+          position: "absolute",
+          inset: "-20%",
           transform: `translate(${blobA.x}%, ${blobA.y}%)`,
-          background: `radial-gradient(circle at 20% 20%, ${palette.blueSoft} 0%, transparent 55%)`,
+          background: `radial-gradient(circle at 20% 20%, ${palette.blueSoft} 0%, transparent 45%)`,
           filter: "blur(2px)",
         }}
       />
-      <AbsoluteFill
+      <div
         style={{
+          position: "absolute",
+          inset: "-20%",
           transform: `translate(${blobB.x}%, ${blobB.y}%)`,
-          background: `radial-gradient(circle at 80% 80%, ${palette.violetSoft} 0%, transparent 55%)`,
+          background: `radial-gradient(circle at 80% 80%, ${palette.violetSoft} 0%, transparent 45%)`,
           filter: "blur(2px)",
         }}
       />

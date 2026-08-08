@@ -61,7 +61,13 @@ export const CseDevLabsPromo: React.FC = () => {
 
       {WORD_BEATS.map((beat, i) => (
         <Sequence key={i} from={beat.start} durationInFrames={beat.duration} layout="none">
-          <WordCard word={beat.word} duration={beat.duration} emphasis={beat.emphasis} />
+          <WordCard
+            word={beat.word}
+            duration={beat.duration}
+            emphasis={beat.emphasis}
+            graphic={beat.graphic}
+            seed={i}
+          />
         </Sequence>
       ))}
 

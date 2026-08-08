@@ -1,15 +1,20 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import type { GraphicVariant } from "./beats";
+import { ConceptGraphic } from "./ConceptGraphic";
 import { bodyFont, palette } from "./fonts";
 
 type Props = {
   word: string;
   duration: number;
   emphasis: boolean;
+  graphic: GraphicVariant | null;
+  seed: number;
 };
 
-// Renders a single word as its own full-screen typographic beat.
+// Renders a single word as its own full-screen typographic beat, with an
+// optional abstract animated glyph above it for key concept words.
 // Meant to be mounted inside a <Sequence> so `frame` is local to the word's lifespan.
-export const WordCard: React.FC<Props> = ({ word, duration, emphasis }) => {
+export const WordCard: React.FC<Props> = ({ word, duration, emphasis, graphic, seed }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -43,10 +48,15 @@ export const WordCard: React.FC<Props> = ({ word, duration, emphasis }) => {
         position: "absolute",
         inset: 0,
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        gap: 20,
       }}
     >
+      {graphic && (
+        <ConceptGraphic variant={graphic} frame={frame} duration={duration} seed={seed} />
+      )}
       <div
         style={{
           opacity,
@@ -63,7 +73,7 @@ export const WordCard: React.FC<Props> = ({ word, duration, emphasis }) => {
           style={{
             fontFamily: bodyFont,
             fontWeight: emphasis ? 800 : 800,
-            fontSize: isLong ? 88 : 128,
+            fontSize: graphic ? (isLong ? 68 : 96) : isLong ? 88 : 128,
             lineHeight: 1,
             letterSpacing: "-0.02em",
             color: emphasis ? "#FFFFFF" : palette.ink,
