@@ -9,12 +9,11 @@ type Props = {
   seed: number;
 };
 
-const GRADIENT_ID = "conceptStroke";
-
 // A small library of abstract (non-literal) animated glyphs, one per concept
 // category. Each draws in via SVG `pathLength` (dash-offset works regardless
 // of the path's real geometry), holds, then fades with the word beat.
 export const ConceptGraphic: React.FC<Props> = ({ variant, frame, duration, seed }) => {
+  const gradientId = `conceptStroke-${seed}`;
   const drawIn = Math.min(16, Math.max(8, Math.floor(duration * 0.45)));
   const outStart = Math.max(drawIn, duration - 8);
 
@@ -29,31 +28,67 @@ export const ConceptGraphic: React.FC<Props> = ({ variant, frame, duration, seed
   const opacity = draw * fadeOut;
   const scale = interpolate(draw, [0, 1], [0.8, 1]);
   const wobble = (seed % 7) - 3; // -3..3 deg, keeps repeated variants feeling less identical
+  const ringRotate = (seed % 2 === 0 ? 1 : -1) * frame * 0.9;
+  const ringOpacity = interpolate(draw, [0, 0.5], [0, 0.5], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <div
       style={{
-        width: 210,
-        height: 170,
+        width: 260,
+        height: 220,
         opacity,
         transform: `scale(${scale}) rotate(${wobble}deg)`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
       }}
     >
-      <svg width="100%" height="100%" viewBox="0 0 240 200">
+      <svg
+        width={200}
+        height={200}
+        viewBox="0 0 200 200"
+        style={{
+          position: "absolute",
+          opacity: ringOpacity,
+          transform: `rotate(${ringRotate}deg)`,
+        }}
+      >
+        <circle
+          cx={100}
+          cy={100}
+          r={92}
+          fill="none"
+          stroke={`url(#${gradientId})`}
+          strokeWidth={1.5}
+          strokeDasharray="2 10"
+          strokeLinecap="round"
+        />
+      </svg>
+      <svg width={210} height={170} viewBox="0 0 240 200">
         <defs>
-          <linearGradient id={GRADIENT_ID} x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor={palette.blue} />
             <stop offset="100%" stopColor={palette.violet} />
           </linearGradient>
         </defs>
-        {renderVariant(variant, draw, frame, seed)}
+        {renderVariant(variant, draw, frame, seed, gradientId)}
       </svg>
     </div>
   );
 };
 
-function renderVariant(variant: GraphicVariant, draw: number, frame: number, seed: number) {
-  const stroke = `url(#${GRADIENT_ID})`;
+function renderVariant(
+  variant: GraphicVariant,
+  draw: number,
+  frame: number,
+  seed: number,
+  gradientId: string,
+) {
+  const stroke = `url(#${gradientId})`;
   switch (variant) {
     case "network":
       return <NetworkGlyph draw={draw} stroke={stroke} seed={seed} />;

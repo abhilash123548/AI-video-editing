@@ -124,3 +124,14 @@ export const SCENE_LABELS = [
 ];
 
 export const WORDS_END_FRAME = 1450;
+
+export type SceneRange = { scene: number; start: number; end: number };
+
+export const SCENE_RANGES: SceneRange[] = SCENE_LABELS.map((_, scene) => {
+  const words = WORD_BEATS.filter((b) => b.scene === scene);
+  return {
+    scene,
+    start: words[0].start,
+    end: words[words.length - 1].start + words[words.length - 1].duration,
+  };
+});

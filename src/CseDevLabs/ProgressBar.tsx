@@ -3,9 +3,10 @@ import { palette } from "./fonts";
 
 type Props = {
   totalDuration: number;
+  line: string;
 };
 
-export const ProgressBar: React.FC<Props> = ({ totalDuration }) => {
+export const ProgressBar: React.FC<Props> = ({ totalDuration, line }) => {
   const frame = useCurrentFrame();
   const progress = interpolate(frame, [0, totalDuration], [0, 1], {
     extrapolateLeft: "clamp",
@@ -21,7 +22,7 @@ export const ProgressBar: React.FC<Props> = ({ totalDuration }) => {
         bottom: 64,
         height: 4,
         borderRadius: 2,
-        background: palette.line,
+        background: line,
         overflow: "hidden",
       }}
     >

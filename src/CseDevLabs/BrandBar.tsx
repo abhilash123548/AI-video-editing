@@ -1,8 +1,12 @@
 import { interpolate, useCurrentFrame } from "remotion";
 import { headlineFont, monoFont, palette } from "./fonts";
 
+type Props = {
+  ink: string;
+};
+
 // Persistent small brand mark, top-left. Fades in over the first half second.
-export const BrandBar: React.FC = () => {
+export const BrandBar: React.FC<Props> = ({ ink }) => {
   const frame = useCurrentFrame();
   const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
   const translateY = interpolate(frame, [0, 15], [-10, 0], { extrapolateRight: "clamp" });
@@ -42,7 +46,7 @@ export const BrandBar: React.FC = () => {
           fontFamily: headlineFont,
           fontWeight: 700,
           fontSize: 26,
-          color: palette.ink,
+          color: ink,
           letterSpacing: "-0.01em",
         }}
       >

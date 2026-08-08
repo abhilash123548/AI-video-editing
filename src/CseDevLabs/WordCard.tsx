@@ -2,6 +2,7 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import type { GraphicVariant } from "./beats";
 import { ConceptGraphic } from "./ConceptGraphic";
 import { bodyFont, palette } from "./fonts";
+import { getSceneTheme } from "./theme";
 
 type Props = {
   word: string;
@@ -9,14 +10,20 @@ type Props = {
   emphasis: boolean;
   graphic: GraphicVariant | null;
   seed: number;
+  start: number;
 };
 
 // Renders a single word as its own full-screen typographic beat, with an
 // optional abstract animated glyph above it for key concept words.
+// Text color is derived every frame from the global timeline (start + local
+// frame), matching the continuously crossfading Background exactly — a
+// frozen per-word sample would drift out of sync for words that straddle
+// the dark/light transition window.
 // Meant to be mounted inside a <Sequence> so `frame` is local to the word's lifespan.
-export const WordCard: React.FC<Props> = ({ word, duration, emphasis, graphic, seed }) => {
+export const WordCard: React.FC<Props> = ({ word, duration, emphasis, graphic, seed, start }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const ink = getSceneTheme(start + frame).ink;
 
   const inFrames = Math.min(8, Math.max(4, Math.floor(duration * 0.4)));
   const outFrames = Math.min(7, Math.max(3, Math.floor(duration * 0.3)));
@@ -76,7 +83,7 @@ export const WordCard: React.FC<Props> = ({ word, duration, emphasis, graphic, s
             fontSize: graphic ? (isLong ? 68 : 96) : isLong ? 88 : 128,
             lineHeight: 1,
             letterSpacing: "-0.02em",
-            color: emphasis ? "#FFFFFF" : palette.ink,
+            color: emphasis ? "#FFFFFF" : ink,
             whiteSpace: "nowrap",
           }}
         >
