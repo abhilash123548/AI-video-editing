@@ -14,8 +14,9 @@ type Props = {
 // of the path's real geometry), holds, then fades with the word beat.
 export const ConceptGraphic: React.FC<Props> = ({ variant, frame, duration, seed }) => {
   const gradientId = `conceptStroke-${seed}`;
-  const drawIn = Math.min(16, Math.max(8, Math.floor(duration * 0.45)));
-  const outStart = Math.max(drawIn, duration - 8);
+  const drawIn = Math.min(16, Math.max(3, Math.floor(duration * 0.4)));
+  const outFrames = Math.min(8, Math.max(2, Math.floor(duration * 0.25)));
+  const outStart = Math.max(drawIn, duration - outFrames);
 
   const draw = interpolate(frame, [0, drawIn], [0, 1], {
     extrapolateLeft: "clamp",
@@ -108,6 +109,8 @@ function renderVariant(
       return <BurstGlyph draw={draw} />;
     case "people":
       return <PeopleGlyph draw={draw} stroke={stroke} />;
+    case "spark":
+      return <SparkGlyph draw={draw} stroke={stroke} />;
     default:
       return null;
   }
@@ -392,7 +395,7 @@ const PeopleGlyph: React.FC<{ draw: number; stroke: string }> = ({ draw, stroke 
     [150, 110],
     [120, 70],
   ];
-  const colors = [palette.blueSoft, palette.violetSoft, "url(#conceptStroke)"];
+  const colors = [palette.blueSoft, palette.violetSoft, stroke];
   return (
     <g>
       {positions.map(([cx, cy], i) => {
@@ -443,6 +446,20 @@ const BurstGlyph: React.FC<{ draw: number }> = ({ draw }) => {
         );
       })}
       <circle cx={120} cy={100} r={interpolate(draw, [0, 0.4], [0, 16])} fill={palette.blue} />
+    </g>
+  );
+};
+
+// Minimal fallback glyph for connector/grammar words with no distinct concept —
+// a single accent dot with a quick expanding ring, fast enough to read in ~6-9 frames.
+const SparkGlyph: React.FC<{ draw: number; stroke: string }> = ({ draw, stroke }) => {
+  const dot = interpolate(draw, [0, 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const ringR = interpolate(draw, [0, 1], [6, 34]);
+  const ringOp = interpolate(draw, [0, 0.3, 1], [0, 0.7, 0]);
+  return (
+    <g>
+      <circle cx={120} cy={100} r={ringR} fill="none" stroke={stroke} strokeWidth={2} opacity={ringOp} />
+      <circle cx={120} cy={100} r={9 * dot} fill={stroke} />
     </g>
   );
 };
