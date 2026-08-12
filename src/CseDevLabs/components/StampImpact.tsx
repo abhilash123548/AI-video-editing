@@ -10,6 +10,9 @@ type Props = {
   color?: string;
   rotateTo?: number;
   shake?: boolean;
+  /** Position as a percentage of the frame, default dead-center (50/50). */
+  posX?: number;
+  posY?: number;
 };
 
 const BLOBS = [
@@ -24,7 +27,7 @@ const BLOBS = [
 // splattered ink texture (irregular blobs, not a clean ring), a screen
 // flash + shake on landing, and a slight rotation. Used identically at the
 // hook (0:00), the phone lock-in (0:77), and the close (1:00) so it reads
-// as an intentional signature.
+// as an intentional signature. posX/posY let callers move it off dead-center.
 export const StampImpact: React.FC<Props> = ({
   text,
   sub,
@@ -33,6 +36,8 @@ export const StampImpact: React.FC<Props> = ({
   color = "#ffffff",
   rotateTo = -3,
   shake = true,
+  posX = 50,
+  posY = 50,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -50,80 +55,93 @@ export const StampImpact: React.FC<Props> = ({
   const flash = shake ? flashOpacity(frame, impactFrame, 5) : 0;
 
   return (
-    <AbsoluteFill
-      style={{
-        justifyContent: "center",
-        alignItems: "center",
-        transform: `translate(${offset.x}px, ${offset.y}px)`,
-      }}
-    >
-      {/* splattered ink texture behind the stamp */}
-      <div style={{ position: "absolute", width: 460, height: 460, transform: `scale(${blobScale})` }}>
-        {BLOBS.map((b, i) => {
-          const rad = (b.angle * Math.PI) / 180;
-          const x = 50 + Math.cos(rad) * b.dist * 100;
-          const y = 50 + Math.sin(rad) * b.dist * 100;
-          const size = 130 * b.size;
-          return (
-            <div
-              key={i}
-              style={{
-                position: "absolute",
-                left: `${x}%`,
-                top: `${y}%`,
-                width: size,
-                height: size,
-                marginLeft: -size / 2,
-                marginTop: -size / 2,
-                borderRadius: b.radius,
-                background: color === "#ffffff" ? "rgba(255,59,59,0.55)" : `${color}88`,
-                opacity: blobOpacity,
-                filter: "blur(2px)",
-              }}
-            />
-          );
-        })}
-      </div>
-
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
       <div
         style={{
-          opacity,
-          transform: `scale(${scale}) rotate(${rotate}deg)`,
-          border: `6px solid ${color}`,
-          borderRadius: 18,
-          padding: "22px 34px",
-          background: "rgba(0,0,0,0.35)",
-          boxShadow: `0 0 40px ${color}33`,
+          position: "absolute",
+          left: `${posX}%`,
+          top: `${posY}%`,
+          transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px)`,
         }}
       >
+        {/* splattered ink texture behind the stamp */}
         <div
           style={{
-            fontFamily: headlineFont,
-            fontSize,
-            color,
-            textAlign: "center",
-            textTransform: "uppercase",
-            lineHeight: 1.05,
-            letterSpacing: "0.02em",
-            whiteSpace: "pre-line",
+            position: "absolute",
+            width: 460,
+            height: 460,
+            left: "50%",
+            top: "50%",
+            transform: `translate(-50%, -50%) scale(${blobScale})`,
           }}
         >
-          {text}
+          {BLOBS.map((b, i) => {
+            const rad = (b.angle * Math.PI) / 180;
+            const x = 50 + Math.cos(rad) * b.dist * 100;
+            const y = 50 + Math.sin(rad) * b.dist * 100;
+            const size = 130 * b.size;
+            return (
+              <div
+                key={i}
+                style={{
+                  position: "absolute",
+                  left: `${x}%`,
+                  top: `${y}%`,
+                  width: size,
+                  height: size,
+                  marginLeft: -size / 2,
+                  marginTop: -size / 2,
+                  borderRadius: b.radius,
+                  background: color === "#ffffff" ? "rgba(255,59,59,0.55)" : `${color}88`,
+                  opacity: blobOpacity,
+                  filter: "blur(2px)",
+                }}
+              />
+            );
+          })}
         </div>
-        {sub ? (
+
+        <div
+          style={{
+            position: "relative",
+            opacity,
+            transform: `scale(${scale}) rotate(${rotate}deg)`,
+            border: `6px solid ${color}`,
+            borderRadius: 18,
+            padding: "22px 34px",
+            background: "rgba(0,0,0,0.35)",
+            boxShadow: `0 0 40px ${color}33`,
+          }}
+        >
           <div
             style={{
               fontFamily: headlineFont,
-              fontSize: fontSize * 0.32,
+              fontSize,
               color,
               textAlign: "center",
-              marginTop: 6,
-              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              lineHeight: 1.05,
+              letterSpacing: "0.02em",
+              whiteSpace: "pre-line",
             }}
           >
-            {sub}
+            {text}
           </div>
-        ) : null}
+          {sub ? (
+            <div
+              style={{
+                fontFamily: headlineFont,
+                fontSize: fontSize * 0.32,
+                color,
+                textAlign: "center",
+                marginTop: 6,
+                letterSpacing: "0.15em",
+              }}
+            >
+              {sub}
+            </div>
+          ) : null}
+        </div>
       </div>
 
       {/* impact flash */}

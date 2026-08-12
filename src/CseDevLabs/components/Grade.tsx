@@ -4,9 +4,9 @@ import { TONE_TURN_FRAME } from "../data/timeline";
 
 // Full-timeline background wash. Cool/desaturated + tense for the
 // Hook-Problem-Agitate run, warms up into the brand palette from the
-// Solution section onward. Never a static color: a slow heartbeat pulse,
-// drifting grain, and a vignette keep it feeling like a "cinematic build"
-// rather than a flat fill.
+// Solution section onward. This is deliberately NOT a static fill: two
+// drifting color blobs, a slow-rotating light-ray burst, grain, and a
+// vignette keep it reading as a moving "cinematic build" at all times.
 export const Grade: React.FC = () => {
   const frame = useCurrentFrame();
   const warmth = interpolate(frame, [TONE_TURN_FRAME - 20, TONE_TURN_FRAME + 25], [0, 1], {
@@ -16,34 +16,59 @@ export const Grade: React.FC = () => {
 
   const bg0 = mixHex(brand.cool.bg0, brand.warm.bg0, warmth);
   const bg1 = mixHex(brand.cool.bg1, brand.warm.bg1, warmth);
+  const glowA = warmth < 0.5 ? brand.cool.accent : brand.warm.accent2;
+  const glowB = warmth < 0.5 ? brand.cool.danger : brand.warm.accent;
 
-  // Slow tense heartbeat before the tone turn; a calmer, warmer breathing
-  // pulse after it.
-  const pulseSpeed = interpolate(warmth, [0, 1], [14, 26]);
-  const pulseDepth = interpolate(warmth, [0, 1], [0.12, 0.06]);
-  const pulse = 1 + Math.sin(frame / pulseSpeed) * pulseDepth;
+  // Two independently drifting blobs (Lissajous-style paths) — always in
+  // motion, never settling into a static frame.
+  const blobAx = 50 + Math.sin(frame / 90) * 26;
+  const blobAy = 32 + Math.cos(frame / 130) * 16;
+  const blobBx = 55 + Math.cos(frame / 110) * 30;
+  const blobBy = 68 + Math.sin(frame / 150) * 18;
 
-  const glowColor = warmth < 0.5 ? brand.cool.danger : brand.warm.accent;
+  const rayRotation = frame * 0.35;
   const grainDrift = (frame * 3.7) % 240;
 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
+      <AbsoluteFill style={{ background: bg0 }} />
+
+      {/* drifting color blobs */}
       <AbsoluteFill
         style={{
-          background: `radial-gradient(circle at 50% 22%, ${bg1} 0%, ${bg0} 72%)`,
+          background: `radial-gradient(circle at ${blobAx}% ${blobAy}%, ${glowA}33 0%, transparent 45%)`,
         }}
       />
-      {/* tense pulsing glow, red pre-turn / amber post-turn */}
       <AbsoluteFill
         style={{
-          transform: `scale(${pulse})`,
-          background: `radial-gradient(circle at 50% 30%, ${glowColor}22 0%, transparent 55%)`,
+          background: `radial-gradient(circle at ${blobBx}% ${blobBy}%, ${glowB}2e 0%, transparent 42%)`,
         }}
       />
+      <AbsoluteFill
+        style={{
+          background: `radial-gradient(circle at 50% 20%, ${bg1}cc 0%, transparent 60%)`,
+        }}
+      />
+
+      {/* slow-rotating light-ray burst, off-center for asymmetry */}
+      <div
+        style={{
+          position: "absolute",
+          top: "-30%",
+          right: "-20%",
+          width: 1400,
+          height: 1400,
+          opacity: 0.08,
+          transform: `rotate(${rayRotation}deg)`,
+          background: `repeating-conic-gradient(from 0deg, ${glowA} 0deg 2deg, transparent 2deg 14deg)`,
+          borderRadius: "50%",
+        }}
+      />
+
       {/* drifting film-grain texture */}
       <AbsoluteFill
         style={{
-          opacity: 0.05,
+          opacity: 0.08,
           mixBlendMode: "overlay",
           backgroundImage:
             "repeating-radial-gradient(circle at 0 0, rgba(255,255,255,0.9) 0, rgba(255,255,255,0.9) 1px, transparent 1px, transparent 3px)",
@@ -51,18 +76,11 @@ export const Grade: React.FC = () => {
           transform: `translate(${grainDrift % 5}px, ${(grainDrift * 1.3) % 5}px)`,
         }}
       />
-      {/* faint horizontal scanlines for a monitor/screen-glow feel */}
-      <AbsoluteFill
-        style={{
-          opacity: 0.05,
-          backgroundImage: "repeating-linear-gradient(0deg, rgba(255,255,255,0.6) 0px, transparent 1px, transparent 3px)",
-        }}
-      />
+
       {/* vignette */}
       <AbsoluteFill
         style={{
-          background:
-            "radial-gradient(circle at 50% 45%, transparent 40%, rgba(0,0,0,0.55) 100%)",
+          background: "radial-gradient(circle at 50% 45%, transparent 38%, rgba(0,0,0,0.6) 100%)",
         }}
       />
     </AbsoluteFill>
