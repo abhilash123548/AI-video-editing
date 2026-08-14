@@ -1,6 +1,7 @@
 import { Composition } from "remotion";
 import { GymTeaser, GYM_TEASER_DURATION } from "./GymTeaser/GymTeaser";
 import { CseDevLabsAd, CSE_DEVLABS_DURATION } from "./CseDevLabs/CseDevLabsAd";
+import { IndependenceDayReel, INDEPENDENCE_DURATION } from "./Independence/IndependenceDayReel";
 
 export const MyComposition = () => {
   return (
@@ -17,6 +18,14 @@ export const MyComposition = () => {
         id="CseDevLabsAd"
         component={CseDevLabsAd}
         durationInFrames={CSE_DEVLABS_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="DeadliftIndependenceDay"
+        component={IndependenceDayReel}
+        durationInFrames={INDEPENDENCE_DURATION}
         fps={30}
         width={1080}
         height={1920}
