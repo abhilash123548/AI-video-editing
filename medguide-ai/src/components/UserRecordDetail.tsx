@@ -81,7 +81,9 @@ export function UserRecordDetail({ id }: { id: string }) {
 
       <Card>
         <h2 className="font-serif-display text-lg font-semibold text-navy">{t("document.whatThisSays")}</h2>
-        <p className="mt-3 text-sm leading-relaxed text-ink/70">{t("records.notAnalyzedYet")}</p>
+        <p className="mt-3 text-sm leading-relaxed text-ink/70">
+          {record.analyzed && record.summary ? record.summary : t("records.notAnalyzedYet")}
+        </p>
         {record.notes && (
           <div className="mt-4 rounded-lg bg-sage/30 p-3">
             <p className="text-xs font-semibold text-navy">{t("records.formNotes")}</p>
@@ -89,6 +91,48 @@ export function UserRecordDetail({ id }: { id: string }) {
           </div>
         )}
       </Card>
+
+      {record.analyzed && record.keyInformation && record.keyInformation.length > 0 && (
+        <Card>
+          <h2 className="font-serif-display text-lg font-semibold text-navy">{t("document.keyInformation")}</h2>
+          <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {record.keyInformation.map((item, i) => (
+              <div key={i} className="rounded-lg border border-navy/8 px-3 py-2.5">
+                <dt className="text-[11px] text-muted">{item.label}</dt>
+                <dd className="text-sm font-semibold text-ink">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </Card>
+      )}
+
+      {record.analyzed && record.termsExplained && record.termsExplained.length > 0 && (
+        <Card>
+          <h2 className="font-serif-display text-lg font-semibold text-navy">{t("document.importantTerminology")}</h2>
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {record.termsExplained.map((term, i) => (
+              <div key={i} className="rounded-lg bg-sage/30 p-3">
+                <p className="text-sm font-semibold text-ink">{term.term}</p>
+                <p className="mt-1 text-xs leading-relaxed text-ink/70">{term.explanation}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {record.analyzed && record.questionsToDiscuss && record.questionsToDiscuss.length > 0 && (
+        <Card>
+          <h2 className="font-serif-display text-lg font-semibold text-navy">{t("document.discussionQuestions")}</h2>
+          <ol className="mt-4 space-y-2 text-sm text-ink/80">
+            {record.questionsToDiscuss.map((q, i) => (
+              <li key={i} className="flex gap-2">
+                <span className="font-semibold text-teal">{i + 1}.</span>
+                <span>{q}</span>
+              </li>
+            ))}
+          </ol>
+        </Card>
+      )}
 
       <Card>
         <h2 className="font-serif-display text-lg font-semibold text-navy">{t("document.source")}</h2>

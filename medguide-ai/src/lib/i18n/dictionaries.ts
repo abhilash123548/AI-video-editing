@@ -149,6 +149,10 @@ export const en = {
     notConfiguredTitle: "Automatic document reading isn't connected yet",
     notConfiguredBody:
       "In this environment, MedGuide can't automatically read this file yet. You can still add it to your health record — just confirm a few details below, and MedGuide will keep it organized for you.",
+    analysisFoundTitle: "Here's what MedGuide found",
+    analysisFailedTitle: "MedGuide couldn't read this file automatically",
+    analysisFailedBody:
+      "You can still add it to your health record — just confirm a few details below, and MedGuide will keep it organized for you.",
     selectedFile: "Selected file",
     formTitle: "Title",
     formType: "Document type",
@@ -417,6 +421,10 @@ export const te: Dictionary = {
     notConfiguredTitle: "ఆటోమేటిక్ పత్ర పఠనం ఇంకా కనెక్ట్ చేయబడలేదు",
     notConfiguredBody:
       "ఈ వాతావరణంలో, మెడ్‌గైడ్ ఈ ఫైల్‌ను ఇంకా ఆటోమేటిక్‌గా చదవలేదు. మీరు దీన్ని మీ ఆరోగ్య రికార్డుకు ఇప్పటికీ జోడించవచ్చు — దిగువ కొన్ని వివరాలను నిర్ధారించండి, మెడ్‌గైడ్ దాన్ని మీ కోసం వ్యవస్థీకృతంగా ఉంచుతుంది.",
+    analysisFoundTitle: "మెడ్‌గైడ్ కనుగొన్నది ఇదిగో",
+    analysisFailedTitle: "మెడ్‌గైడ్ ఈ ఫైల్‌ను ఆటోమేటిక్‌గా చదవలేకపోయింది",
+    analysisFailedBody:
+      "మీరు దీన్ని మీ ఆరోగ్య రికార్డుకు ఇప్పటికీ జోడించవచ్చు — దిగువ కొన్ని వివరాలను నిర్ధారించండి, మెడ్‌గైడ్ దాన్ని మీ కోసం వ్యవస్థీకృతంగా ఉంచుతుంది.",
     selectedFile: "ఎంచుకున్న ఫైల్",
     formTitle: "శీర్షిక",
     formType: "పత్రం రకం",
@@ -683,6 +691,10 @@ export const hi: Dictionary = {
     notConfiguredTitle: "स्वचालित दस्तावेज़ रीडिंग अभी कनेक्ट नहीं है",
     notConfiguredBody:
       "इस वातावरण में, मेडगाइड अभी इस फ़ाइल को अपने आप नहीं पढ़ सकता। आप फिर भी इसे अपने स्वास्थ्य रिकॉर्ड में जोड़ सकते हैं — बस नीचे कुछ विवरण की पुष्टि करें, मेडगाइड इसे आपके लिए व्यवस्थित रखेगा।",
+    analysisFoundTitle: "मेडगाइड ने यह पाया",
+    analysisFailedTitle: "मेडगाइड इस फ़ाइल को अपने आप नहीं पढ़ सका",
+    analysisFailedBody:
+      "आप फिर भी इसे अपने स्वास्थ्य रिकॉर्ड में जोड़ सकते हैं — बस नीचे कुछ विवरण की पुष्टि करें, मेडगाइड इसे आपके लिए व्यवस्थित रखेगा।",
     selectedFile: "चयनित फ़ाइल",
     formTitle: "शीर्षक",
     formType: "दस्तावेज़ प्रकार",

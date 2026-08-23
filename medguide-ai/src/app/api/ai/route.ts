@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAIProvider } from "@/lib/ai/aiService";
+import { getAIProvider } from "@/lib/ai/provider";
+import type { ActiveRecordSnapshot } from "@/lib/ai/aiService";
 import type { Lang } from "@/lib/i18n";
+
+export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   let body: {
@@ -8,6 +11,7 @@ export async function POST(request: NextRequest) {
     lang?: Lang;
     documentId?: string;
     appointmentId?: string;
+    activeRecord?: ActiveRecordSnapshot;
   };
 
   try {
@@ -28,6 +32,7 @@ export async function POST(request: NextRequest) {
     lang,
     documentId: body.documentId,
     appointmentId: body.appointmentId,
+    activeRecord: body.activeRecord,
   });
 
   return NextResponse.json({ reply });

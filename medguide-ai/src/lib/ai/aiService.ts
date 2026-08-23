@@ -1,6 +1,5 @@
 import {
   APPOINTMENTS,
-  DOCUMENTS,
   getAppointment,
   getDocument,
   getQuestion,
@@ -9,22 +8,34 @@ import {
   type Lang,
 } from "../demoData";
 import { translate } from "../i18n";
-import { checkSafety } from "./safety";
+import type { AnalyzedKeyInfo, AnalyzedTerm } from "../records/types";
 
 /**
- * AI service abstraction.
- *
- * `getAIProvider()` is the single seam between the UI and "an AI". Today it
- * always returns `DemoAIProvider`, a deterministic engine built entirely
- * from the fictional demo data in src/lib/demoData.ts — no network call, no
- * API key, and it never breaks in a browser with no backend configured.
- *
- * To plug in a real LLM later: implement `AIProvider` with a class that
- * calls the provider (reading its key from a server-only env var, e.g.
- * LLM_API_KEY), and switch the return value of `getAIProvider()` when that
- * key is present. No calling code needs to change — every call site already
- * goes through this interface.
+ * Shared AI data layer: pure, deterministic, and safe to import from client
+ * components (src/app/demo/compare, src/app/demo/appointments) as well as
+ * from the server (src/lib/ai/provider.ts, used only by /api/ai/route.ts).
+ * It must never import anything server-only (like the Anthropic client) —
+ * that lives in provider.ts instead, which is the actual seam between the
+ * chat UI and "an AI."
  */
+
+/** Snapshot of a user-added record, sent by the client alongside a chat
+ * request when `documentId` points at one — user records live only in the
+ * browser's localStorage (see RecordsContext), so the server has no other
+ * way to see them. Only the record actively open is ever sent. */
+export interface ActiveRecordSnapshot {
+  id: string;
+  title: string;
+  date: string;
+  provider?: string;
+  doctor?: string;
+  notes?: string;
+  analyzed: boolean;
+  summary?: string;
+  keyInformation?: AnalyzedKeyInfo[];
+  termsExplained?: AnalyzedTerm[];
+  questionsToDiscuss?: string[];
+}
 
 export interface AIContext {
   lang: Lang;
@@ -32,6 +43,8 @@ export interface AIContext {
   documentId?: string;
   /** The appointment currently open, if the user asked from an appointment page. */
   appointmentId?: string;
+  /** Populated when `documentId` refers to a user's own uploaded record rather than a sample document. */
+  activeRecord?: ActiveRecordSnapshot;
 }
 
 export interface ComparisonResult {
@@ -57,13 +70,44 @@ export interface AIProvider {
   translateExplanation(documentId: string, lang: Lang): Promise<string>;
 }
 
-const LATEST_REPORT_ID = "doc-2026-consult";
-const DEFAULT_APPOINTMENT_ID = "appt-cardiology";
-const DEFAULT_COMPARISON: [string, string] = ["doc-2024-blood", "doc-2026-blood"];
+export const LATEST_REPORT_ID = "doc-2026-consult";
+export const DEFAULT_APPOINTMENT_ID = "appt-cardiology";
+export const DEFAULT_COMPARISON: [string, string] = ["doc-2024-blood", "doc-2026-blood"];
 
-function formatExplanation(documentId: string, lang: Lang): string {
+function formatUserRecordExplanation(record: ActiveRecordSnapshot, lang: Lang): string {
+  const lines: string[] = [`${record.title} — ${record.date}`];
+
+  if (!record.analyzed || !record.summary) {
+    lines.push("", translate(lang, "records.notAnalyzedYet"));
+    return lines.join("\n");
+  }
+
+  lines.push("", `${translate(lang, "document.whatThisSays")}:`, record.summary);
+
+  if (record.keyInformation && record.keyInformation.length > 0) {
+    lines.push("", `${translate(lang, "document.keyInformation")}:`);
+    record.keyInformation.forEach((item) => lines.push(`• ${item.label}: ${item.value}`));
+  }
+
+  if (record.termsExplained && record.termsExplained.length > 0) {
+    lines.push("", `${translate(lang, "document.importantTerminology")}:`);
+    record.termsExplained.forEach((t) => lines.push(`• ${t.term} — ${t.explanation}`));
+  }
+
+  if (record.questionsToDiscuss && record.questionsToDiscuss.length > 0) {
+    lines.push("", `${translate(lang, "document.discussionQuestions")}:`);
+    record.questionsToDiscuss.forEach((q, i) => lines.push(`${i + 1}. ${q}`));
+  }
+
+  return lines.join("\n");
+}
+
+export function formatExplanation(documentId: string, lang: Lang, activeRecord?: ActiveRecordSnapshot): string {
   const doc = getDocument(documentId);
   if (!doc) {
+    if (activeRecord && activeRecord.id === documentId) {
+      return formatUserRecordExplanation(activeRecord, lang);
+    }
     return translate(lang, "compare.selectPrompt");
   }
 
@@ -98,7 +142,7 @@ function formatExplanation(documentId: string, lang: Lang): string {
   return lines.join("\n");
 }
 
-function computeComparison(previousId: string, currentId: string, lang: Lang): ComparisonResult {
+export function computeComparison(previousId: string, currentId: string, lang: Lang): ComparisonResult {
   const previous = getDocument(previousId);
   const current = getDocument(currentId);
 
@@ -155,7 +199,7 @@ function computeComparison(previousId: string, currentId: string, lang: Lang): C
   };
 }
 
-function computeAppointmentBrief(appointmentId: string, lang: Lang): AppointmentBriefResult {
+export function computeAppointmentBrief(appointmentId: string, lang: Lang): AppointmentBriefResult {
   const appointment = getAppointment(appointmentId);
   if (!appointment) {
     return { documentsToReview: [], whatToRemember: [], questionsToDiscuss: [], documentsToBring: [] };
@@ -183,7 +227,7 @@ function computeAppointmentBrief(appointmentId: string, lang: Lang): Appointment
   };
 }
 
-function formatComparisonAsText(result: ComparisonResult, lang: Lang): string {
+export function formatComparisonAsText(result: ComparisonResult, lang: Lang): string {
   const lines: string[] = [];
   lines.push(`${translate(lang, "compare.newInformation")}:`);
   lines.push(...(result.newInformation.length ? result.newInformation.map((l) => `• ${l}`) : ["—"]));
@@ -199,7 +243,7 @@ function formatComparisonAsText(result: ComparisonResult, lang: Lang): string {
   return lines.join("\n");
 }
 
-function formatBriefAsText(brief: AppointmentBriefResult, lang: Lang): string {
+export function formatBriefAsText(brief: AppointmentBriefResult, lang: Lang): string {
   const lines: string[] = [];
   lines.push(translate(lang, "appointments.briefTitle"));
   lines.push("");
@@ -211,86 +255,4 @@ function formatBriefAsText(brief: AppointmentBriefResult, lang: Lang): string {
   return lines.join("\n");
 }
 
-class DemoAIProvider implements AIProvider {
-  async explainDocument(documentId: string, lang: Lang): Promise<string> {
-    return formatExplanation(documentId, lang);
-  }
-
-  async translateExplanation(documentId: string, lang: Lang): Promise<string> {
-    return formatExplanation(documentId, lang);
-  }
-
-  async compareDocuments(previousId: string, currentId: string, lang: Lang): Promise<ComparisonResult> {
-    return computeComparison(previousId, currentId, lang);
-  }
-
-  async prepareAppointment(appointmentId: string, lang: Lang): Promise<AppointmentBriefResult> {
-    return computeAppointmentBrief(appointmentId, lang);
-  }
-
-  async generateResponse(message: string, ctx: AIContext): Promise<string> {
-    const { lang } = ctx;
-    const safety = checkSafety(message, lang);
-    if (safety.triggered && safety.response) {
-      return safety.response;
-    }
-
-    const lower = message.toLowerCase();
-    const contextDocId = ctx.documentId ?? LATEST_REPORT_ID;
-
-    const wantsTelugu = /telugu/i.test(message);
-    const wantsHindi = /hindi/i.test(message);
-    if (wantsTelugu || wantsHindi) {
-      return formatExplanation(contextDocId, wantsTelugu ? "te" : "hi");
-    }
-
-    if (/compar|what changed|changed since/i.test(lower)) {
-      const [prev, curr] = DEFAULT_COMPARISON;
-      const result = computeComparison(prev, curr, lang);
-      return formatComparisonAsText(result, lang);
-    }
-
-    if (/prepar|appointment|visit/i.test(lower)) {
-      const appointmentId = ctx.appointmentId ?? DEFAULT_APPOINTMENT_ID;
-      const brief = computeAppointmentBrief(appointmentId, lang);
-      return formatBriefAsText(brief, lang);
-    }
-
-    if (/explain|report|latest|summary|what does/i.test(lower)) {
-      return formatExplanation(contextDocId, lang);
-    }
-
-    if (/hi|hello|hey|namaste|namaskar/i.test(lower) && lower.trim().length < 20) {
-      return translate(lang, "advocate.opening");
-    }
-
-    // Generic fallback: point back to what MedGuide can help with.
-    const doc = getDocument(contextDocId) ?? DOCUMENTS[DOCUMENTS.length - 1];
-    const fallbackLines = [
-      translate(lang, "advocate.disclaimer"),
-      "",
-      lang === "en"
-        ? `You can ask me to explain a report (like "${localize(doc.title, lang)}"), compare two reports, prepare you for your next appointment, or explain something in Telugu or Hindi.`
-        : lang === "te"
-          ? `మీరు నన్ను ఒక రిపోర్ట్‌ను వివరించమని ("${localize(doc.title, lang)}" వంటిది), రెండు రిపోర్ట్‌లను పోల్చమని, మీ తదుపరి అపాయింట్‌మెంట్ కోసం సిద్ధం చేయమని, లేదా తెలుగు లేదా హిందీలో ఏదైనా వివరించమని అడగవచ్చు.`
-          : `आप मुझसे कोई रिपोर्ट समझाने ("${localize(doc.title, lang)}" जैसी), दो रिपोर्ट की तुलना करने, अपनी अगली अपॉइंटमेंट के लिए तैयार करने, या तेलुगु या हिंदी में कुछ समझाने के लिए कह सकते हैं।`,
-    ];
-    return fallbackLines.join("\n");
-  }
-}
-
-const demoProvider = new DemoAIProvider();
-
-export function getAIProvider(): AIProvider {
-  // Future: if (process.env.LLM_API_KEY) return new RealAIProvider();
-  return demoProvider;
-}
-
-export {
-  LATEST_REPORT_ID,
-  DEFAULT_APPOINTMENT_ID,
-  DEFAULT_COMPARISON,
-  APPOINTMENTS,
-  computeComparison,
-  computeAppointmentBrief,
-};
+export { APPOINTMENTS };

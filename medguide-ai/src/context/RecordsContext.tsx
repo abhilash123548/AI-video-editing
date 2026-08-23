@@ -49,6 +49,7 @@ export function RecordsProvider({ children }: { children: ReactNode }) {
       id: `user-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       addedAt: new Date().toISOString(),
       isSample: false,
+      analyzed: false,
       ...input,
     };
     setRecords((prev) => {

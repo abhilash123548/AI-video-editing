@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { useRecords } from "@/context/RecordsContext";
 import { track } from "@/lib/analytics";
 
 interface ChatMessage {
@@ -18,6 +19,7 @@ interface ChatPanelProps {
 
 export function ChatPanel({ documentId, appointmentId, compact = false }: ChatPanelProps) {
   const { t, lang } = useLanguage();
+  const { getRecord } = useRecords();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
@@ -54,10 +56,31 @@ export function ChatPanel({ documentId, appointmentId, compact = false }: ChatPa
     track("ai_question_asked", { message_length: trimmed.length });
 
     try {
+      const activeRecord = documentId ? getRecord(documentId) : undefined;
       const res = await fetch("/api/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed, lang, documentId, appointmentId }),
+        body: JSON.stringify({
+          message: trimmed,
+          lang,
+          documentId,
+          appointmentId,
+          activeRecord: activeRecord
+            ? {
+                id: activeRecord.id,
+                title: activeRecord.title,
+                date: activeRecord.date,
+                provider: activeRecord.provider,
+                doctor: activeRecord.doctor,
+                notes: activeRecord.notes,
+                analyzed: activeRecord.analyzed,
+                summary: activeRecord.summary,
+                keyInformation: activeRecord.keyInformation,
+                termsExplained: activeRecord.termsExplained,
+                questionsToDiscuss: activeRecord.questionsToDiscuss,
+              }
+            : undefined,
+        }),
       });
       const data = await res.json();
       const reply: string = data.reply ?? "";
