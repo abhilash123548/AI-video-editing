@@ -40,6 +40,7 @@ export function ChatPanel({ documentId, appointmentId, compact = false }: ChatPa
     t("advocate.suggested3"),
     t("advocate.suggested4"),
     t("advocate.suggested5"),
+    t("advocate.suggested6"),
   ];
 
   async function sendMessage(text: string) {

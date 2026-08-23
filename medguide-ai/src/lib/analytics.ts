@@ -8,8 +8,8 @@
 
 export type AnalyticsEvent =
   | "landing_view"
-  | "demo_clicked"
-  | "demo_started"
+  | "app_entry_clicked"
+  | "app_view"
   | "document_opened"
   | "document_explained"
   | "comparison_started"
@@ -21,7 +21,9 @@ export type AnalyticsEvent =
   | "signup_completed"
   | "pricing_viewed"
   | "checkout_started"
-  | "payment_completed";
+  | "payment_completed"
+  | "add_record_started"
+  | "add_record_completed";
 
 export type AnalyticsProperties = Record<string, string | number | boolean | undefined>;
 

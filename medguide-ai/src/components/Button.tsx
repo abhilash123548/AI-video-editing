@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type Variant = "primary" | "secondary" | "ghost" | "inverse";
+type Variant = "primary" | "secondary" | "ghost" | "inverse" | "outline-inverse";
 
 const VARIANT_CLASSES: Record<Variant, string> = {
   primary:
@@ -12,6 +12,9 @@ const VARIANT_CLASSES: Record<Variant, string> = {
   // For use on dark (navy) backgrounds, where `secondary`'s transparent fill
   // would be invisible against the same navy behind it.
   inverse: "bg-ivory text-navy border border-ivory hover:bg-ivory/90",
+  // A lighter-weight secondary action on a navy background: outlined in
+  // ivory rather than filled, so it doesn't compete with `inverse`.
+  "outline-inverse": "bg-transparent text-ivory border border-ivory/30 hover:border-ivory/60 hover:bg-ivory/10",
 };
 
 const baseClasses =

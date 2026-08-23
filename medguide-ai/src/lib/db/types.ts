@@ -17,8 +17,17 @@ export type SupportedLanguage = "en" | "te" | "hi";
 export type DocumentType =
   | "blood_test"
   | "mri_report"
+  | "ct_scan"
+  | "xray"
+  | "ultrasound"
+  | "ecg"
+  | "pathology_report"
+  | "lab_report"
   | "consultation_note"
   | "prescription"
+  | "discharge_summary"
+  | "hospital_record"
+  | "medical_bill"
   | "other";
 
 export type ProcessingStatus = "pending" | "processing" | "processed" | "failed";

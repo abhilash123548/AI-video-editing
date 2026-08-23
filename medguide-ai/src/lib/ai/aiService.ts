@@ -244,7 +244,7 @@ class DemoAIProvider implements AIProvider {
       return formatExplanation(contextDocId, wantsTelugu ? "te" : "hi");
     }
 
-    if (/compar/i.test(lower)) {
+    if (/compar|what changed|changed since/i.test(lower)) {
       const [prev, curr] = DEFAULT_COMPARISON;
       const result = computeComparison(prev, curr, lang);
       return formatComparisonAsText(result, lang);

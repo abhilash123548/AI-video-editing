@@ -117,6 +117,10 @@ function CompareContent() {
         </div>
       )}
 
+      {result && previousId !== currentId && result.changedInformation.length > 0 && (
+        <p className="text-sm text-muted">{t("compare.considerDiscussing")}</p>
+      )}
+
       {result && previousId !== currentId && !result.hasMetrics && (
         <Card>
           <p className="text-sm text-muted">{t("compare.noMetrics")}</p>

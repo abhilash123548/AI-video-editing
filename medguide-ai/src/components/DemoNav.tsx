@@ -43,9 +43,6 @@ export function DemoNav() {
         </nav>
         <div className="flex shrink-0 items-center gap-3">
           <LanguageSwitcher />
-          <Link href="/" className="hidden text-sm font-medium text-navy/60 hover:text-navy sm:block">
-            {t("nav.exitDemo")}
-          </Link>
         </div>
       </div>
       <nav className="container-page flex items-center gap-1 overflow-x-auto pb-2 md:hidden">

@@ -23,6 +23,27 @@ export const DEMO_PATIENT = {
 };
 
 /* ------------------------------------------------------------------ */
+/* Document type labels (shared by sample records and user uploads)    */
+/* ------------------------------------------------------------------ */
+
+export const DOCUMENT_TYPE_LABELS: Record<DocumentType, Localized> = {
+  blood_test: { en: "Blood Test", te: "రక్త పరీక్ష", hi: "रक्त परीक्षण" },
+  mri_report: { en: "MRI Report", te: "MRI నివేదిక", hi: "MRI रिपोर्ट" },
+  ct_scan: { en: "CT Scan", te: "CT స్కాన్", hi: "सीटी स्कैन" },
+  xray: { en: "X-Ray", te: "ఎక్స్-రే", hi: "एक्स-रे" },
+  ultrasound: { en: "Ultrasound", te: "అల్ట్రాసౌండ్", hi: "अल्ट्रासाउंड" },
+  ecg: { en: "ECG", te: "ECG", hi: "ईसीजी" },
+  pathology_report: { en: "Pathology Report", te: "పాథాలజీ నివేదిక", hi: "पैथोलॉजी रिपोर्ट" },
+  lab_report: { en: "Lab Report", te: "ల్యాబ్ నివేదిక", hi: "लैब रिपोर्ट" },
+  consultation_note: { en: "Consultation Note", te: "సంప్రదింపు నోట్", hi: "परामर्श नोट" },
+  prescription: { en: "Prescription", te: "ప్రిస్క్రిప్షన్", hi: "प्रिस्क्रिप्शन" },
+  discharge_summary: { en: "Discharge Summary", te: "డిశ్చార్జ్ సారాంశం", hi: "डिस्चार्ज सारांश" },
+  hospital_record: { en: "Hospital Record", te: "ఆసుపత్రి రికార్డు", hi: "अस्पताल रिकॉर्ड" },
+  medical_bill: { en: "Medical Bill / Document", te: "మెడికల్ బిల్లు / పత్రం", hi: "मेडिकल बिल / दस्तावेज़" },
+  other: { en: "Other Health Document", te: "ఇతర ఆరోగ్య పత్రం", hi: "अन्य स्वास्थ्य दस्तावेज़" },
+};
+
+/* ------------------------------------------------------------------ */
 /* Medical term glossary (shared across documents)                     */
 /* ------------------------------------------------------------------ */
 
@@ -193,10 +214,14 @@ export interface DemoDocument {
   title: Localized;
   date: string; // ISO yyyy-mm-dd
   status: "Processed";
+  provider?: string;
+  doctor?: string;
   summary: Localized;
   termKeys: string[];
   metrics?: MetricRow[];
   questionKeys: string[];
+  /** Sample records ship with the product so people can explore it; they are not the user's own data. */
+  isSample: true;
 }
 
 export const DOCUMENTS: DemoDocument[] = [
@@ -207,11 +232,13 @@ export const DOCUMENTS: DemoDocument[] = [
     title: { en: "Annual Blood Panel", te: "వార్షిక రక్త పానెల్", hi: "वार्षिक रक्त पैनल" },
     date: "2024-03-10",
     status: "Processed",
+    provider: "Wellness Path Diagnostics",
     summary: {
       en: "A routine annual blood panel checking general markers such as hemoglobin, white blood cells, platelets, vitamin D, and fasting glucose. All values were recorded as part of a standard yearly check-up.",
       te: "హిమోగ్లోబిన్, తెల్ల రక్త కణాలు, ప్లేట్‌లెట్స్, విటమిన్ డి మరియు ఫాస్టింగ్ గ్లూకోజ్ వంటి సాధారణ మార్కర్‌లను తనిఖీ చేసే సాధారణ వార్షిక రక్త పానెల్. ఇది సాధారణ వార్షిక చెకప్‌లో భాగంగా నమోదు చేయబడింది.",
       hi: "हीमोग्लोबिन, श्वेत रक्त कोशिकाएं, प्लेटलेट्स, विटामिन डी और फास्टिंग ग्लूकोज़ जैसे सामान्य मार्करों की जांच करने वाला एक नियमित वार्षिक रक्त पैनल। यह एक मानक वार्षिक जांच के हिस्से के रूप में दर्ज किया गया था।",
     },
+    isSample: true,
     termKeys: ["hemoglobin", "wbc", "platelets", "vitaminD", "fastingGlucose"],
     metrics: [
       { label: { en: "Hemoglobin", te: "హిమోగ్లోబిన్", hi: "हीमोग्लोबिन" }, value: "13.1", unit: "g/dL" },
@@ -229,11 +256,14 @@ export const DOCUMENTS: DemoDocument[] = [
     title: { en: "General Consultation", te: "సాధారణ సంప్రదింపు", hi: "सामान्य परामर्श" },
     date: "2025-06-02",
     status: "Processed",
+    provider: "Sunrise Multispecialty Clinic",
+    doctor: "Dr. Kavita Menon",
     summary: {
       en: "A routine check-in consultation. Mild, occasional fatigue was discussed, along with general lifestyle and diet. No further tests were ordered at this visit.",
       te: "ఒక సాధారణ చెక్-ఇన్ సంప్రదింపు. తేలికపాటి, అప్పుడప్పుడు అలసట గురించి, సాధారణ జీవనశైలి మరియు ఆహారంతో పాటు చర్చించారు. ఈ సందర్శనలో మరిన్ని పరీక్షలు ఆదేశించలేదు.",
       hi: "एक नियमित जांच परामर्श। हल्की, कभी-कभार होने वाली थकान पर सामान्य जीवनशैली और आहार के साथ चर्चा की गई। इस मुलाकात में कोई और जांच नहीं करवाई गई।",
     },
+    isSample: true,
     termKeys: [],
     questionKeys: ["q_symptoms", "q_followup"],
   },
@@ -244,11 +274,13 @@ export const DOCUMENTS: DemoDocument[] = [
     title: { en: "Blood Test", te: "రక్త పరీక్ష", hi: "रक्त परीक्षण" },
     date: "2026-08-14",
     status: "Processed",
+    provider: "Sunrise Diagnostics",
     summary: {
       en: "A blood panel repeating several of the same markers from the 2024 annual panel, plus a new ferritin measurement. It was ordered ahead of the upcoming consultation to give the doctor current information to review.",
       te: "2024 వార్షిక పానెల్ నుండి అదే మార్కర్లలో చాలా వరకు పునరావృతం చేసే రక్త పానెల్, అలాగే కొత్త ఫెర్రిటిన్ కొలత. రాబోయే సంప్రదింపుకు ముందు వైద్యుడికి సమీక్షించడానికి ప్రస్తుత సమాచారం ఇవ్వడానికి దీన్ని ఆదేశించారు.",
       hi: "2024 के वार्षिक पैनल के कई समान मार्करों को दोहराने वाला एक रक्त पैनल, साथ ही एक नया फेरिटिन माप। आगामी परामर्श से पहले डॉक्टर को समीक्षा के लिए वर्तमान जानकारी देने हेतु इसे करवाया गया था।",
     },
+    isSample: true,
     termKeys: ["hemoglobin", "wbc", "platelets", "vitaminD", "ferritin"],
     metrics: [
       { label: { en: "Hemoglobin", te: "హిమోగ్లోబిన్", hi: "हीमोग्लोबिन" }, value: "12.4", unit: "g/dL" },
@@ -266,11 +298,13 @@ export const DOCUMENTS: DemoDocument[] = [
     title: { en: "MRI Report — Lumbar Spine", te: "MRI నివేదిక — నడుము వెన్నెముక", hi: "MRI रिपोर्ट — कटि रीढ़" },
     date: "2026-08-20",
     status: "Processed",
+    provider: "Horizon Imaging Center",
     summary: {
       en: "An MRI of the lower back, taken without contrast. The report describes a mild disc bulge at one level and mild soft-tissue edema nearby. These are descriptive imaging observations, not a diagnosis by themselves.",
       te: "కాంట్రాస్ట్ లేకుండా తీసిన నడుము దిగువ భాగం యొక్క MRI. నివేదిక ఒక స్థాయిలో తేలికపాటి డిస్క్ బల్జ్ మరియు దాని దగ్గర తేలికపాటి మృదు కణజాల ఎడీమాను వివరిస్తుంది. ఇవి వివరణాత్మక ఇమేజింగ్ పరిశీలనలు, అవే స్వయంగా వ్యాధి నిర్ధారణ కాదు.",
       hi: "बिना कॉन्ट्रास्ट के ली गई पीठ के निचले हिस्से की MRI। रिपोर्ट एक स्तर पर हल्के डिस्क बल्ज और उसके पास हल्के सॉफ्ट-टिश्यू एडिमा का वर्णन करती है। ये वर्णनात्मक इमेजिंग अवलोकन हैं, अपने आप में निदान नहीं।",
     },
+    isSample: true,
     termKeys: ["discBulge", "edema", "contrast"],
     questionKeys: ["q_meaning", "q_other_factors", "q_monitor"],
   },
@@ -281,11 +315,14 @@ export const DOCUMENTS: DemoDocument[] = [
     title: { en: "Consultation Note", te: "సంప్రదింపు నోట్", hi: "परामर्श नोट" },
     date: "2026-08-21",
     status: "Processed",
+    provider: "Sunrise Multispecialty Clinic",
+    doctor: "Dr. Kavita Menon",
     summary: {
       en: "Follow-up consultation reviewing the recent blood test and MRI together. The visit covered general findings, day-to-day comfort, and next steps, including a prescription and a follow-up appointment.",
       te: "ఇటీవలి రక్త పరీక్ష మరియు MRI రెండింటినీ కలిపి సమీక్షించే ఫాలో-అప్ సంప్రదింపు. ఈ సందర్శన సాధారణ ఫలితాలు, రోజువారీ సౌకర్యం మరియు తదుపరి దశలను కవర్ చేసింది, ప్రిస్క్రిప్షన్ మరియు ఫాలో-అప్ అపాయింట్‌మెంట్‌తో సహా.",
       hi: "हाल की रक्त परीक्षण और MRI को एक साथ समीक्षा करने वाला फॉलो-अप परामर्श। इस मुलाकात में सामान्य निष्कर्ष, दैनिक आराम और अगले कदम शामिल थे, जिसमें एक प्रिस्क्रिप्शन और एक फॉलो-अप अपॉइंटमेंट शामिल है।",
     },
+    isSample: true,
     termKeys: [],
     questionKeys: ["q_meaning", "q_followup", "q_monitor"],
   },
@@ -296,11 +333,14 @@ export const DOCUMENTS: DemoDocument[] = [
     title: { en: "Prescription", te: "ప్రిస్క్రిప్షన్", hi: "प्रिस्क्रिप्शन" },
     date: "2026-08-21",
     status: "Processed",
+    provider: "Sunrise Multispecialty Clinic",
+    doctor: "Dr. Kavita Menon",
     summary: {
       en: "A prescription issued at the follow-up consultation: a vitamin D supplement course, an iron and folic acid supplement, and an as-needed option for occasional discomfort.",
       te: "ఫాలో-అప్ సంప్రదింపులో జారీ చేసిన ప్రిస్క్రిప్షన్: విటమిన్ డి సప్లిమెంట్ కోర్సు, ఐరన్ మరియు ఫోలిక్ యాసిడ్ సప్లిమెంట్, మరియు అప్పుడప్పుడు అసౌకర్యం కోసం అవసరమైనప్పుడు తీసుకునే ఎంపిక.",
       hi: "फॉलो-अप परामर्श में जारी किया गया प्रिस्क्रिप्शन: एक विटामिन डी सप्लीमेंट कोर्स, एक आयरन और फोलिक एसिड सप्लीमेंट, और कभी-कभार होने वाली असुविधा के लिए एक आवश्यकतानुसार विकल्प।",
     },
+    isSample: true,
     termKeys: ["supplement", "prn"],
     questionKeys: ["q_medication_purpose", "q_followup"],
   },
