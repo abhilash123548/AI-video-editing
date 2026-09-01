@@ -45,7 +45,7 @@ export const ReelEdit: React.FC = () => {
       })}
 
       {sfxCues.map((cue, i) => (
-        <Sequence key={`sfx-${i}`} from={cue.frame} durationInFrames={SFX_CUE_DURATION}>
+        <Sequence key={`sfx-${i}`} from={cue.frame} durationInFrames={cue.durationFrames ?? SFX_CUE_DURATION}>
           <Audio src={staticFile(cue.src)} volume={cue.volume ?? 1} />
         </Sequence>
       ))}
