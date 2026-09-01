@@ -1,13 +1,36 @@
-type IconProps = { size?: number; color?: string };
+type IconProps = { size?: number; color?: string; progress?: number };
 
-export const XIcon: React.FC<IconProps> = ({ size = 90, color = "#ffffff" }) => (
+const LINE_LEN = 85; // approx length of each X stroke
+const CHECK_LEN = 100; // approx length of the check polyline
+
+export const XIcon: React.FC<IconProps> = ({ size = 90, color = "#ffffff", progress = 1 }) => (
   <svg width={size} height={size} viewBox="0 0 100 100">
-    <line x1="20" y1="20" x2="80" y2="80" stroke={color} strokeWidth="14" strokeLinecap="round" />
-    <line x1="80" y1="20" x2="20" y2="80" stroke={color} strokeWidth="14" strokeLinecap="round" />
+    <line
+      x1="20"
+      y1="20"
+      x2="80"
+      y2="80"
+      stroke={color}
+      strokeWidth="14"
+      strokeLinecap="round"
+      strokeDasharray={LINE_LEN}
+      strokeDashoffset={LINE_LEN * (1 - progress)}
+    />
+    <line
+      x1="80"
+      y1="20"
+      x2="20"
+      y2="80"
+      stroke={color}
+      strokeWidth="14"
+      strokeLinecap="round"
+      strokeDasharray={LINE_LEN}
+      strokeDashoffset={LINE_LEN * (1 - Math.max(0, Math.min(1, (progress - 0.35) / 0.65)))}
+    />
   </svg>
 );
 
-export const CheckIcon: React.FC<IconProps> = ({ size = 90, color = "#ffffff" }) => (
+export const CheckIcon: React.FC<IconProps> = ({ size = 90, color = "#ffffff", progress = 1 }) => (
   <svg width={size} height={size} viewBox="0 0 100 100">
     <polyline
       points="18,52 40,76 84,24"
@@ -16,6 +39,8 @@ export const CheckIcon: React.FC<IconProps> = ({ size = 90, color = "#ffffff" })
       strokeWidth="14"
       strokeLinecap="round"
       strokeLinejoin="round"
+      strokeDasharray={CHECK_LEN}
+      strokeDashoffset={CHECK_LEN * (1 - progress)}
     />
   </svg>
 );
